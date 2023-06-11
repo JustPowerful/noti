@@ -118,3 +118,63 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+// Copied it from my other project
+// There's a potential that there's a bug
+// Please check later
+exports.refresh = async (req, res) => {
+  const token = req.headers["x-access-token"];
+  const refreshToken = req.headers["x-refresh-token"];
+  jwt.verify(token, process.env.JWT_SECRET, async function (error, decoded) {
+    if (error) {
+      const exists = await prisma.authRefresh.findFirst({
+        where: {
+          refreshToken,
+        },
+      });
+      if (exists) {
+        jwt.verify(
+          refreshToken,
+          process.env.JWT_REFRESH_SECRET,
+          async (error, decoded) => {
+            if (error) {
+              return res.status(401).json({
+                success: false,
+                message: "You're not authorized: refresh token expired.",
+              });
+            }
+            const user = await prisma.user.findFirst({
+              where: {
+                id: exists.userId,
+              },
+            });
+            const newToken = jwt.sign(
+              {
+                id: user.id,
+                email: user.email,
+              },
+              process.env.JWT_SECRET,
+              {
+                expiresIn: process.env.JWT_TIME,
+              }
+            );
+            return res.json({
+              success: true,
+              token: newToken,
+            });
+          }
+        );
+      } else {
+        return res.status(403).json({
+          success: false,
+          message: "User not authorized: old refresh token.",
+        });
+      }
+    } else {
+      return res.json({
+        success: true,
+        token: token,
+      });
+    }
+  });
+};
