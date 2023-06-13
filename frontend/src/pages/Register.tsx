@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { css } from "@emotion/css";
 
@@ -6,8 +7,11 @@ import { FaUser } from "react-icons/fa";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { AiOutlineLock } from "react-icons/ai";
 
+// Axios
+import { axiosPublic } from "../apis/AxiosInstance";
 // components
 import Input from "../components/forms/Input";
+import { Link } from "react-router-dom";
 
 type RegisterInputs = {
   username: string;
@@ -17,21 +21,50 @@ type RegisterInputs = {
 };
 
 function Register() {
+  // React State
+  interface message_type {
+    content: string;
+    error: boolean;
+  }
+  const [message, setMessage] = useState<message_type>({
+    content: "",
+    error: false,
+  });
+
   const {
     register,
     handleSubmit,
-    watch,
+    // watch,
     formState: { errors },
   } = useForm<RegisterInputs>();
 
+  async function onRegister(inputs: RegisterInputs) {
+    const { username, email, password, confirmPassword } = inputs;
+    if (password !== confirmPassword) {
+      return setMessage({ content: "Passwords does not match!", error: true });
+    }
+    try {
+      const { data } = await axiosPublic.post("/auth/register", {
+        username: username,
+        email: email,
+        password: password,
+      });
+      if (data.success) {
+        setMessage({ content: data.message, error: !data.success });
+      }
+    } catch (error: any) {
+      setMessage({
+        content: error.response.data.message,
+        error: !error.response.data.success,
+      });
+    }
+  }
+
   const onSumbit: SubmitHandler<RegisterInputs> = (data) => {
     // HTTP axios request here
-    console.log(data.username, data.email, data.password, data.confirmPassword);
+    // console.log(data.username, data.email, data.password, data.confirmPassword);
+    onRegister(data);
   };
-
-  const inputStyle = css`
-    border: none;
-  `;
 
   return (
     <div
@@ -76,8 +109,20 @@ function Register() {
           Icon={FaUser}
           register={register}
           placeholder="username"
+          error={Boolean(errors.username)}
           required={true}
         />
+        {errors.username && (
+          <small
+            className={css`
+              color: red;
+              margin-bottom: 5px;
+            `}
+          >
+            Username field is required.
+          </small>
+        )}
+
         {/* <input {...register("email", { required: true })} placeholder="Email" /> */}
         <Input
           name="email"
@@ -86,7 +131,18 @@ function Register() {
           register={register}
           placeholder="email"
           required={true}
+          error={Boolean(errors.email)}
         />
+        {errors.email && (
+          <small
+            className={css`
+              color: red;
+              margin-bottom: 5px;
+            `}
+          >
+            Email field is required.
+          </small>
+        )}
         {/* <input
           {...register("password", { required: true })}
           placeholder="Password"
@@ -98,7 +154,18 @@ function Register() {
           register={register}
           placeholder="password"
           required={true}
+          error={Boolean(errors.password)}
         />
+        {errors.password && (
+          <small
+            className={css`
+              color: red;
+              margin-bottom: 5px;
+            `}
+          >
+            Password field is required.
+          </small>
+        )}
         {/* <input
           {...register("confirmPassword", { required: true })}
           placeholder="Confirm password"
@@ -110,7 +177,42 @@ function Register() {
           register={register}
           placeholder="confirm password"
           required={true}
+          error={Boolean(errors.confirmPassword)}
         />
+        {errors.confirmPassword && (
+          <small
+            className={css`
+              color: red;
+              margin-bottom: 5px;
+            `}
+          >
+            Please confirm your password.
+          </small>
+        )}
+        {message.content &&
+          (message.error ? (
+            <small
+              className={css`
+                color: red;
+                margin-bottom: 5px;
+                text-align: center;
+                font-size: 12px;
+              `}
+            >
+              {message.content}
+            </small>
+          ) : (
+            <small
+              className={css`
+                color: green;
+                margin-bottom: 5px;
+                text-align: center;
+                font-size: 12px;
+              `}
+            >
+              {message.content}
+            </small>
+          ))}
         <button
           className={css`
             background-color: dodgerblue;
@@ -126,6 +228,26 @@ function Register() {
         >
           Register
         </button>
+
+        <div
+          className={css`
+            font-size: 12px;
+            text-align: center;
+            display: block;
+            margin-top: 5px;
+            text-decoration: none;
+          `}
+        >
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className={css`
+              text-decoration: none;
+            `}
+          >
+            login.
+          </Link>
+        </div>
       </form>
     </div>
   );
