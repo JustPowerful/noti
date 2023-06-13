@@ -4,7 +4,7 @@ import { css } from "@emotion/css";
 
 // Icons
 import { FaUser } from "react-icons/fa";
-import { MdOutlineMailOutline } from "react-icons/md";
+import { MdEmail, MdOutlineMailOutline, MdPassword } from "react-icons/md";
 import { AiOutlineLock } from "react-icons/ai";
 
 // Axios
@@ -13,14 +13,13 @@ import { axiosPublic } from "../apis/AxiosInstance";
 import Input from "../components/forms/Input";
 import { Link } from "react-router-dom";
 
-type RegisterInputs = {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
-
 function Register() {
+  interface RegisterInputs {
+    username: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }
   // React State
   interface message_type {
     content: string;
@@ -61,8 +60,6 @@ function Register() {
   }
 
   const onSumbit: SubmitHandler<RegisterInputs> = (data) => {
-    // HTTP axios request here
-    // console.log(data.username, data.email, data.password, data.confirmPassword);
     onRegister(data);
   };
 
@@ -126,7 +123,7 @@ function Register() {
         {/* <input {...register("email", { required: true })} placeholder="Email" /> */}
         <Input
           name="email"
-          Icon={MdOutlineMailOutline}
+          Icon={MdEmail}
           type="email"
           register={register}
           placeholder="email"
@@ -149,7 +146,7 @@ function Register() {
         /> */}
         <Input
           name="password"
-          Icon={AiOutlineLock}
+          Icon={MdPassword}
           type="password"
           register={register}
           placeholder="password"
@@ -172,7 +169,7 @@ function Register() {
         /> */}
         <Input
           name="confirmPassword"
-          Icon={AiOutlineLock}
+          Icon={MdPassword}
           type="password"
           register={register}
           placeholder="confirm password"
@@ -231,7 +228,7 @@ function Register() {
 
         <div
           className={css`
-            font-size: 12px;
+            font-size: 14px;
             text-align: center;
             display: block;
             margin-top: 5px;
