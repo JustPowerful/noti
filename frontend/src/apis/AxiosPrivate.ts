@@ -1,28 +1,26 @@
-/*
-  401 HTTP Code refreshes the token when it happens
-*/
+// FOR THIS:
+// server response must return 401 error status to refresh the token
 
-import axios, { AxiosRequestHeaders, AxiosResponse } from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
 import { memoizedRefreshToken } from "./refreshToken";
-
 axios.defaults.baseURL = "/api";
 axios.interceptors.request.use(
-  async (config) => {
-    config.headers = <AxiosRequestHeaders>{
-      "Content-Type": "application/json",
-    }; // typescript refused to accept the access token and the refresh token attributes
-
-    // so i set them seperatly
+  async (config: InternalAxiosRequestConfig) => {
+    // config.headers = {
+    //   "Content-Type": "application/json",
+    //   // "x-access-token": localStorage.getItem("token"),
+    //   // "x-refresh-token": localStorage.getItem("refreshToken"),
+    // }
+    config.headers.set("Content-Type", "application/json");
     config.headers.set("x-access-token", localStorage.getItem("token"));
     config.headers.set("x-refresh-token", localStorage.getItem("refreshToken"));
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
 axios.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response) => response,
   async (error) => {
     const config = error.config;
 
