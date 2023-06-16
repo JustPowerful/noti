@@ -9,7 +9,8 @@ app.use(express.json());
 
 const route_prefix = "/api";
 
-app.use(`${route_prefix}/auth`, require("./routers/auth.router")); // auth router
+app.use(`${route_prefix}/auth`, require("./routers/auth.router")); // authorization router
+app.use(`${route_prefix}/user`, require("./routers/user.router")); // user router
 
 app.listen(process.env.PORT, () => {
   console.log(`Listening to http://localhost:${process.env.PORT}`);

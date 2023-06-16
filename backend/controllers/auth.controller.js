@@ -119,6 +119,15 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.authCheck = async (req, res) => {
+  // returns whether its authorized or not via the success JSON attribute
+  // if the auth middlware couldn't authorize the user this process won't run.
+  res.status(200).json({
+    success: true,
+    message: "The user auth is successful.",
+  });
+};
+
 // Copied it from my other project
 // There's a potential that there's a bug
 // Please check later
