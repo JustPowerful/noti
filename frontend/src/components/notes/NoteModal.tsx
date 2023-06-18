@@ -4,12 +4,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 // Component
 import Input from "../forms/Input";
+import { axiosPrivate } from "../../apis/AxiosPrivate";
 
 interface NoteModalProps {
   onClose: any;
+  onComplete: any;
 }
 
-export default function NoteModal({ onClose }: NoteModalProps) {
+export default function NoteModal({ onClose, onComplete }: NoteModalProps) {
   interface NoteInputs {
     title: string;
     content: string;
@@ -20,9 +22,26 @@ export default function NoteModal({ onClose }: NoteModalProps) {
     formState: { errors },
   } = useForm<NoteInputs>();
 
+  async function onCreate(inputs: NoteInputs) {
+    try {
+      const { data } = await axiosPrivate.post("/note/add", {
+        title: inputs.title,
+        content: inputs.content,
+      });
+      if (data.success) {
+        // add the refresh function here later
+        onComplete();
+        onClose();
+      }
+    } catch (error) {
+      console.log("There was an error adding this note.");
+    }
+  }
+
   const onSubmit: SubmitHandler<NoteInputs> = (data) => {
-    console.log(data);
+    onCreate(data);
   };
+
   return (
     <div
       className={css`
